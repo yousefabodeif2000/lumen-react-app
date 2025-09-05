@@ -35,8 +35,9 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
+        // If no user is authenticated with the given guard → unauthorized
         if ($this->auth->guard($guard)->guest()) {
-            return response('Unauthorized.', 401);
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         return $next($request);

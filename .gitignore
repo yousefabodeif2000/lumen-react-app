@@ -1,0 +1,52 @@
+# =========================================
+# Laravel / Lumen
+# =========================================
+/vendor/
+/node_modules/
+/public/storage
+/storage/*.key
+/storage/app/*
+/storage/framework/*
+/storage/logs/*
+/bootstrap/cache/*.php
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# =========================================
+# IDE 
+# =========================================
+/.idea/
+/*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =========================================
+# Composer / NPM
+# =========================================
+composer.lock
+package-lock.json
+npm-debug.log
+yarn-error.log
+pnpm-lock.yaml
+
+# =========================================
+# Cache 
+# =========================================
+*.log
+*.cache
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# =========================================
+# PHPUnit
+# =========================================
+.phpunit.result.cache
+.phpunit.cache
