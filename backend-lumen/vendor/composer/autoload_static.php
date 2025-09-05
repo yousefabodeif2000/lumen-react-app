@@ -111,6 +111,7 @@ class ComposerStaticInit92349cb28edd03fc664907cf9290705c
             'Illuminate\\Testing\\' => 19,
             'Illuminate\\Support\\' => 19,
             'Illuminate\\Session\\' => 19,
+            'Illuminate\\Redis\\' => 17,
             'Illuminate\\Queue\\' => 17,
             'Illuminate\\Pipeline\\' => 20,
             'Illuminate\\Pagination\\' => 22,
@@ -377,6 +378,10 @@ class ComposerStaticInit92349cb28edd03fc664907cf9290705c
         'Illuminate\\Session\\' => 
         array (
             0 => __DIR__ . '/..' . '/illuminate/session',
+        ),
+        'Illuminate\\Redis\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/illuminate/redis',
         ),
         'Illuminate\\Queue\\' => 
         array (
@@ -2173,6 +2178,21 @@ class ComposerStaticInit92349cb28edd03fc664907cf9290705c
         'Illuminate\\Queue\\TimeoutExceededException' => __DIR__ . '/..' . '/illuminate/queue/TimeoutExceededException.php',
         'Illuminate\\Queue\\Worker' => __DIR__ . '/..' . '/illuminate/queue/Worker.php',
         'Illuminate\\Queue\\WorkerOptions' => __DIR__ . '/..' . '/illuminate/queue/WorkerOptions.php',
+        'Illuminate\\Redis\\Connections\\Connection' => __DIR__ . '/..' . '/illuminate/redis/Connections/Connection.php',
+        'Illuminate\\Redis\\Connections\\PacksPhpRedisValues' => __DIR__ . '/..' . '/illuminate/redis/Connections/PacksPhpRedisValues.php',
+        'Illuminate\\Redis\\Connections\\PhpRedisClusterConnection' => __DIR__ . '/..' . '/illuminate/redis/Connections/PhpRedisClusterConnection.php',
+        'Illuminate\\Redis\\Connections\\PhpRedisConnection' => __DIR__ . '/..' . '/illuminate/redis/Connections/PhpRedisConnection.php',
+        'Illuminate\\Redis\\Connections\\PredisClusterConnection' => __DIR__ . '/..' . '/illuminate/redis/Connections/PredisClusterConnection.php',
+        'Illuminate\\Redis\\Connections\\PredisConnection' => __DIR__ . '/..' . '/illuminate/redis/Connections/PredisConnection.php',
+        'Illuminate\\Redis\\Connectors\\PhpRedisConnector' => __DIR__ . '/..' . '/illuminate/redis/Connectors/PhpRedisConnector.php',
+        'Illuminate\\Redis\\Connectors\\PredisConnector' => __DIR__ . '/..' . '/illuminate/redis/Connectors/PredisConnector.php',
+        'Illuminate\\Redis\\Events\\CommandExecuted' => __DIR__ . '/..' . '/illuminate/redis/Events/CommandExecuted.php',
+        'Illuminate\\Redis\\Limiters\\ConcurrencyLimiter' => __DIR__ . '/..' . '/illuminate/redis/Limiters/ConcurrencyLimiter.php',
+        'Illuminate\\Redis\\Limiters\\ConcurrencyLimiterBuilder' => __DIR__ . '/..' . '/illuminate/redis/Limiters/ConcurrencyLimiterBuilder.php',
+        'Illuminate\\Redis\\Limiters\\DurationLimiter' => __DIR__ . '/..' . '/illuminate/redis/Limiters/DurationLimiter.php',
+        'Illuminate\\Redis\\Limiters\\DurationLimiterBuilder' => __DIR__ . '/..' . '/illuminate/redis/Limiters/DurationLimiterBuilder.php',
+        'Illuminate\\Redis\\RedisManager' => __DIR__ . '/..' . '/illuminate/redis/RedisManager.php',
+        'Illuminate\\Redis\\RedisServiceProvider' => __DIR__ . '/..' . '/illuminate/redis/RedisServiceProvider.php',
         'Illuminate\\Session\\ArraySessionHandler' => __DIR__ . '/..' . '/illuminate/session/ArraySessionHandler.php',
         'Illuminate\\Session\\CacheBasedSessionHandler' => __DIR__ . '/..' . '/illuminate/session/CacheBasedSessionHandler.php',
         'Illuminate\\Session\\Console\\SessionTableCommand' => __DIR__ . '/..' . '/illuminate/session/Console/SessionTableCommand.php',

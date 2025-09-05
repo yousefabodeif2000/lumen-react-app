@@ -108,6 +108,7 @@ $app->configure('auth');
 
 $app->register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(\Illuminate\Redis\RedisServiceProvider::class);
 
 
 $app->routeMiddleware([
