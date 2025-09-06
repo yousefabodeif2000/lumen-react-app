@@ -1,6 +1,8 @@
 import { Router } from 'express';
-import { getPosts, getPostsByID, pingLumen, setAuthToken } from './services/lumenAPI';
-import { redis } from './redisClient';
+import { getCached } from './cacheLayer';
+import { getPosts, getPostsByID, pingLumen} from './services/lumenAPI';
+import crypto from 'crypto';
+
 const router = Router();
 
 router.get('/ping-lumen', async (req, res) => {
@@ -14,44 +16,25 @@ router.get('/ping-lumen', async (req, res) => {
 
 router.get('/posts', async (req, res) => {
   try {
-    const cacheKey = 'posts_cache';
-    const cachedPosts = await redis.get(cacheKey);
-    const token = req.headers['authorization']; 
-    if (token) {
-      setAuthToken(token.replace('Bearer ', ''));
-    }
-    if (cachedPosts) {
-      return res.json(JSON.parse(cachedPosts));
-    }
-    const result = await getPosts();
-    await redis.set(cacheKey, JSON.stringify(result.data), 'EX', 60);
-
-    res.json(result.data);
-
-  } 
-  catch (err: any) {
+    const token = req.headers['authorization']?.split(' ')[1] || '';
+    if (!token) return res.status(401).json({ error: 'Missing token' });
+    const safeToken = crypto.createHash('sha256').update(token).digest('hex');
+    const cacheKey = `posts_cache_${safeToken}`; 
+    const data = await getCached(cacheKey, () => getPosts(token), 60);
+    res.json(data);
+  } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
 router.get('/posts/:id', async (req, res) => {
   try {
-
-    const postId = Number(req.params.id);
-    const cacheKey = `post_${postId}_cache`;
-    const token = req.headers['authorization']; 
-    const cachedPost = await redis.get(cacheKey);
-
-    if (token) {
-      setAuthToken(token.replace('Bearer ', ''));
-    }
-    if(cachedPost) {
-      return res.json(JSON.parse(cachedPost));
-    }
-    
-    const result = await getPostsByID(postId);
-    await redis.set(cacheKey, JSON.stringify(result.data), 'EX', 60);
-    res.json(result.data);
+    const token = req.headers['authorization']?.split(' ')[1] || '';
+    if (!token) return res.status(401).json({ error: 'Missing token' });
+    const safeToken = crypto.createHash('sha256').update(token).digest('hex');
+    const postId = req.params.id;
+    const data = await getCached(`post_${postId}_cache_${safeToken}`, () => getPostsByID(Number(postId), token), 60);
+    res.json(data);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

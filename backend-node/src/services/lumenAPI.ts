@@ -5,13 +5,10 @@ const lumenAPI = axios.create({
   timeout: 5000,
 });
 
-export const setAuthToken = (token: string) => {
-  lumenAPI.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-};
 
 export const pingLumen = () => axios.get('http://localhost:8000/ping');
-export const getPosts = () => lumenAPI.get('/posts');
-export const getPostsByID = (id: number) => lumenAPI.get(`/posts/${id}`);
+export const getPosts = (token: string) => lumenAPI.get('/posts', { headers: { Authorization: `Bearer ${token}` } });
+export const getPostsByID = (id: number, token: string) => lumenAPI.get(`/posts/${id}`, { headers: { Authorization: `Bearer ${token}` } });
 
 
 export default lumenAPI;
