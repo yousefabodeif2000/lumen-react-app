@@ -8,7 +8,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Redis;
 class PostController extends Controller
 {
-
     public function index()
     {
         $cacheKey = 'posts_cache';
