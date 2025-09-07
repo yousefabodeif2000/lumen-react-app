@@ -12,6 +12,4 @@ app.use(express.json());
 app.use('/cache', cacheRouter);
 app.use('/api', apiRouter);
 
-app.listen(PORT, () => {
-  console.log(`Node service running on http://localhost:${PORT}`);
-});
+export default app;
