@@ -2,13 +2,13 @@ import axios from 'axios';
 
 // Instance for /api endpoints (auth, writes)
 export const api = axios.create({
-  baseURL: 'http://localhost:4000/api',
+  baseURL: 'http://localhost:3000/api',
   timeout: 5000,
 });
 
 // Instance for /cache endpoints (reads, cached)
 export const cacheApi = axios.create({
-  baseURL: 'http://localhost:4000/cache',
+  baseURL: 'http://localhost:3000/cache',
   timeout: 5000,
 });
 

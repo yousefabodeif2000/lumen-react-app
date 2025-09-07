@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getCached } from '../cacheLayer';
 import { getPosts, getPostsByID, pingLumen} from '../services/lumenAPI';
 import crypto from 'crypto';
-import { Post } from '../services/lumenAPI';
+import { Post, RawPost } from '../interfaces';
 
 const cacheRouter = Router();
 
@@ -23,13 +23,29 @@ cacheRouter.get('/posts', async (req, res) => {
     const safeToken = crypto.createHash('sha256').update(token).digest('hex');
     const cacheKey = `posts_cache_${safeToken}`;
 
-    const cachedPostsRaw = await getCached(cacheKey, () => getPosts(token), 60);
+    const cachedPostsRaw = await getCached(cacheKey, async () => {
+      const response = await getPosts(token);
+      return response.data; // <--- important
+    }, 60);
+
     const cachedPosts: Post[] = Array.isArray(cachedPostsRaw) ? cachedPostsRaw : [];
 
-    // Filter invalid posts and sort newest first
-    const posts = cachedPosts
-      .filter(p => p && p.id && p.title && p.username && p.createdAt)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    // Assume cachedPostsRaw is an array of RawPost
+    const rawPosts = cachedPostsRaw as RawPost[];
+
+    const posts: Post[] = rawPosts.map((p: RawPost) => ({
+      id: p.id,
+      title: p.title,
+      content: p.content,
+      username: p.user?.name || 'Unknown',
+      createdAt: p.created_at
+    }));
+
+    // Sort newest first
+    posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+
+
 
     res.json(posts);
   } catch (err: any) {

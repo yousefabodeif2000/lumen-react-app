@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User; // 👈 Add this import
+use App\Models\User; 
 
 class Post extends Model
 {

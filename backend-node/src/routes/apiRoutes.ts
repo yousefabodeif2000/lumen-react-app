@@ -5,6 +5,13 @@ import crypto from 'crypto';
 
 const apiRouter = Router();
 
+
+apiRouter.get('/ping', (req, res) => {
+  res.json({ message: 'pong from Node API' });
+});
+
+
+
 apiRouter.post('/posts', async (req, res) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1] || '';
