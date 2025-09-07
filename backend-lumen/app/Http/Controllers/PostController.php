@@ -30,7 +30,7 @@ class PostController extends Controller
         $post = Post::with('user')->findOrFail($id);
         Redis::set($cacheKey, $post->toJson());
         Redis::expire($cacheKey, 60);
-
+        
         return response()->json($post);
     }
 

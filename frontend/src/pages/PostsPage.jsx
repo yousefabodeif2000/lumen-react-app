@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { api, cacheApi } from '../api/api';
 
 export default function PostsPage() {
@@ -7,14 +7,29 @@ export default function PostsPage() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // useCallback ensures stable reference
+  const textareaRef = useRef(null);
+
+  // Fetch posts from backend
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
+
       const res = await cacheApi.get('/posts');
-      setPosts(res.data || []);
+
+      const postsArray = Array.isArray(res?.data) ? res.data : [];
+      const validPosts = postsArray.filter(
+        (p) => p && p.id && p.title && p.username && p.createdAt
+      );
+
+      // Sort newest first
+      validPosts.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      setPosts(validPosts);
     } catch (err) {
       console.error('Failed to fetch posts:', err.response?.data || err.message);
+      setPosts([]);
     } finally {
       setLoading(false);
     }
@@ -24,23 +39,53 @@ export default function PostsPage() {
     fetchPosts();
   }, [fetchPosts]);
 
+  // Auto-resize textarea
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!title || !content) return;
+
+    const tempId = Date.now();
+    const tempPost = {
+      id: tempId,
+      title,
+      content,
+      username: 'You',
+      createdAt: new Date().toISOString(),
+    };
+
+    // Optimistic update
+    setPosts((prev) => [tempPost, ...prev]);
+    setTitle('');
+    setContent('');
+
     try {
-      // create post
       const res = await api.post('/posts', { title, content });
 
-      // optimistic update (shows immediately)
-      setPosts((prev) => [...prev, res.data]);
+      // Normalize server response
+      const serverPost = {
+        id: res.data.id,
+        title: res.data.title,
+        content: res.data.content,
+        username: res.data.user?.name || 'Unknown',
+        createdAt: res.data.created_at || res.data.createdAt || new Date().toISOString(),
+      };
 
-      setTitle('');
-      setContent('');
-      alert('📝 Post created!');
+      // Replace temporary post
+      setPosts((prev) => prev.map((p) => (p.id === tempId ? serverPost : p)));
 
-      // re-fetch to make sure cache + server are in sync
-      await fetchPosts();
+      alert('Post created successfully!');
     } catch (err) {
-      alert('❌ Error creating post: ' + (err.response?.data?.error || err.message));
+      // Remove temp post on error
+      setPosts((prev) => prev.filter((p) => p.id !== tempId));
+      alert('Error creating post: ' + (err.response?.data?.error || err.message));
     }
   };
 
@@ -58,9 +103,10 @@ export default function PostsPage() {
             required
           />
           <textarea
+            ref={textareaRef}
             placeholder="Content"
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={handleContentChange}
             style={styles.textarea}
             required
           />
@@ -79,6 +125,9 @@ export default function PostsPage() {
               <li key={p.id} style={styles.listItem}>
                 <h4>{p.title}</h4>
                 <p>{p.content}</p>
+                <small>
+                  Posted by: {p.username}, Date: {new Date(p.createdAt).toLocaleString()}
+                </small>
               </li>
             ))}
           </ul>
@@ -88,6 +137,7 @@ export default function PostsPage() {
   );
 }
 
+// Styles
 const pageContainer = {
   display: 'flex',
   alignItems: 'center',
@@ -111,18 +161,15 @@ const cardLarge = {
 const styles = {
   title: { marginBottom: '1rem', color: '#333', textAlign: 'center' },
   form: { display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' },
-  input: {
-    padding: '0.75rem',
-    borderRadius: 6,
-    border: '1px solid #ccc',
-  },
+  input: { padding: '0.75rem', borderRadius: 6, border: '1px solid #ccc' },
   textarea: {
     padding: '0.75rem',
     borderRadius: 6,
     border: '1px solid #ccc',
     minHeight: '100px',
-    resize: 'vertical', // ✅ allow vertical resize only
-    maxWidth: '100%',   // ✅ prevent overflow
+    resize: 'none', // auto-resize handled by JS
+    overflow: 'hidden',
+    maxWidth: '100%',
     boxSizing: 'border-box',
   },
   button: {
@@ -141,5 +188,6 @@ const styles = {
     padding: '1rem',
     marginBottom: '0.75rem',
     background: '#315675ff',
+    color: 'white',
   },
 };
