@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { getCached } from './cacheLayer';
-import { getPosts, getPostsByID, pingLumen} from './services/lumenAPI';
+import { getCached } from '../cacheLayer';
+import { getPosts, getPostsByID, pingLumen} from '../services/lumenAPI';
 import crypto from 'crypto';
 
-const router = Router();
+const cacheRouter = Router();
 
-router.get('/ping-lumen', async (req, res) => {
+cacheRouter.get('/ping-lumen', async (req, res) => {
   try {
     const result = await pingLumen();
     res.json(result.data);
@@ -14,7 +14,7 @@ router.get('/ping-lumen', async (req, res) => {
   }
 });
 
-router.get('/posts', async (req, res) => {
+cacheRouter.get('/posts', async (req, res) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1] || '';
     if (!token) return res.status(401).json({ error: 'Missing token' });
@@ -27,7 +27,7 @@ router.get('/posts', async (req, res) => {
   }
 });
 
-router.get('/posts/:id', async (req, res) => {
+cacheRouter.get('/posts/:id', async (req, res) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1] || '';
     if (!token) return res.status(401).json({ error: 'Missing token' });
@@ -40,4 +40,4 @@ router.get('/posts/:id', async (req, res) => {
   }
 });
 
-export default router;
+export default cacheRouter;
