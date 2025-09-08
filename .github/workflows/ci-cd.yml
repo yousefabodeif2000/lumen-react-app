@@ -18,7 +18,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: Sql%055705
           MYSQL_DATABASE: lumen_db
         options: >-
-          --health-cmd "mysqladmin ping -h 127.0.0.1 -p$MYSQL_ROOT_PASSWORD"
+          --health-cmd "mysqladmin ping -h mysql -uroot -p$MYSQL_ROOT_PASSWORD"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -42,8 +42,8 @@ jobs:
           path: lumen-react-app/backend-node/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('lumen-react-app/backend-node/package-lock.json') }}
 
-      # --- Node install dependencies ---
-      - name: Install Node dependencies (clean)
+      # --- Install Node dependencies (clean) ---
+      - name: Install Node dependencies
         run: |
           rm -rf node_modules package-lock.json
           npm install --legacy-peer-deps
@@ -58,7 +58,10 @@ jobs:
       - name: Wait for MySQL
         run: |
           for i in {1..30}; do
-            mysqladmin ping -h 127.0.0.1 -p$MYSQL_ROOT_PASSWORD && break
+            if mysqladmin ping -h mysql -uroot -p$MYSQL_ROOT_PASSWORD >/dev/null 2>&1; then
+              echo "MySQL is ready!"
+              break
+            fi
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -97,7 +100,7 @@ jobs:
         working-directory: lumen-react-app/backend-lumen
         env:
           DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
+          DB_HOST: mysql
           DB_PORT: 3306
           DB_DATABASE: lumen_db
           DB_USERNAME: root
