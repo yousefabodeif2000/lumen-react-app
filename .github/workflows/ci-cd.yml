@@ -1,0 +1,95 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: lumen_db
+          MYSQL_USER: root
+          MYSQL_PASSWORD: Sql%055705
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -proot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # --- Node.js setup ---
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Run Node Jest tests
+        run: npm test
+
+      # --- PHP / Lumen setup ---
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql, bcmath, curl
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --no-interaction
+
+      - name: Run Lumen tests
+        run: php artisan test
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: lumen_db
+          DB_USERNAME: root
+          DB_PASSWORD: Sql%055705
+
+  build_and_deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # --- Log in to Docker (optional, if pushing images) ---
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # --- Build Docker images ---
+      - name: Build Node Docker image
+        run: docker build -t myapp-node:latest ./frontend
+
+      - name: Build Lumen Docker image
+        run: docker build -t myapp-lumen:latest ./backend-lumen
+
+      # --- Push Docker images (optional) ---
+      - name: Push Node Docker image
+        run: docker tag myapp-node:latest mydockerhubuser/myapp-node:latest
+      - run: docker push mydockerhubuser/myapp-node:latest
+
+      - name: Push Lumen Docker image
+        run: docker tag myapp-lumen:latest mydockerhubuser/myapp-lumen:latest
+      - run: docker push mydockerhubuser/myapp-lumen:latest
+
