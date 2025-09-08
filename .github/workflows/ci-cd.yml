@@ -55,7 +55,7 @@ jobs:
       # --- Wait for MySQL to be ready ---
       - name: Create test database
         run: |
-          mysql -uroot -p"Sql%055705" -h 127.0.0.1 -P 33306 -e "CREATE DATABASE IF NOT EXISTS ${DB_DATABASE};"
+          mysql -uroot -p"Sql%055705" -h 127.0.0.1 -P 3306 -e "CREATE DATABASE IF NOT EXISTS ${DB_DATABASE};"
         env:
           DB_DATABASE: lumen_db
 
