@@ -56,8 +56,8 @@ jobs:
       # --- Wait for MySQL to be ready ---
       - name: Wait for MySQL
         run: |
-          for i in {1..30}; do
-            if mysql -h mysql -uroot -p$MYSQL_ROOT_PASSWORD --protocol=tcp -e "SELECT 1;" >/dev/null 2>&1; then
+          for i in {1..60}; do
+            if mysql -h mysql -uroot -p"$MYSQL_ROOT_PASSWORD" --protocol=tcp -e "SELECT 1;" >/dev/null 2>&1; then
               echo "MySQL is ready!"
               break
             fi
