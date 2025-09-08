@@ -35,6 +35,7 @@ jobs:
 
       - name: Install Node dependencies
         run: npm install
+        working-directory: backend-node
 
       - name: Run Node Jest tests
         run: npm test
