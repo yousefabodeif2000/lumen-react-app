@@ -24,7 +24,6 @@ jobs:
           --health-retries 5
 
     steps:
-      # --- Checkout repo ---
       - uses: actions/checkout@v3
         with:
           path: lumen-react-app
@@ -42,14 +41,14 @@ jobs:
           path: lumen-react-app/backend-node/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('lumen-react-app/backend-node/package-lock.json') }}
 
-      # --- Install Node dependencies (clean) ---
+      # --- Install Node dependencies ---
       - name: Install Node dependencies
         run: |
           rm -rf node_modules package-lock.json
           npm install --legacy-peer-deps
         working-directory: lumen-react-app/backend-node
 
-      # --- Fix permissions for binaries ---
+      # --- Fix permissions ---
       - name: Fix permissions for binaries
         run: chmod -R u+x node_modules/.bin
         working-directory: lumen-react-app/backend-node
@@ -70,6 +69,12 @@ jobs:
       - name: Run Node Jest tests
         run: npx jest --runInBand
         working-directory: lumen-react-app/backend-node
+        env:
+          DB_HOST: mysql
+          DB_PORT: 3306
+          DB_DATABASE: lumen_db
+          DB_USERNAME: root
+          DB_PASSWORD: Sql%055705
 
       # --- PHP / Lumen setup ---
       - name: Set up PHP
@@ -89,10 +94,6 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-progress --no-interaction
         working-directory: lumen-react-app/backend-lumen
-
-      # --- Copy .env if needed ---
-      - name: Copy .env
-        run: cp lumen-react-app/.env.example lumen-react-app/backend-lumen/.env
 
       # --- Run Lumen tests ---
       - name: Run Lumen tests
