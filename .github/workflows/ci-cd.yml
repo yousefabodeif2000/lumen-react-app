@@ -33,13 +33,22 @@ jobs:
         with:
           node-version: '20'
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
       - name: Install Node dependencies
         run: npm install
+        working-directory: backend-node
+
+      - name: Fix Jest permissions
+        run: chmod +x node_modules/.bin/jest
         working-directory: backend-node
 
       - name: Run Node Jest tests
         run: npx jest --runInBand
         working-directory: backend-node
+
 
 
       # --- PHP / Lumen setup ---
