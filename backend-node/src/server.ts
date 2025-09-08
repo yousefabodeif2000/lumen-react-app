@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-import app from './index';
+import { app } from "./index"
 
 
 
