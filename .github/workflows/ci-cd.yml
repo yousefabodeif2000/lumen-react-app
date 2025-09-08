@@ -38,8 +38,9 @@ jobs:
         working-directory: backend-node
 
       - name: Run Node Jest tests
-        run: npm test
+        run: npx jest --runInBand
         working-directory: backend-node
+
 
       # --- PHP / Lumen setup ---
       - name: Set up PHP
