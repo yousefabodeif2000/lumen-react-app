@@ -23,12 +23,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-
     steps:
+      # --- Checkout repo ---
       - uses: actions/checkout@v3
         with:
           path: lumen-react-app
-
 
       # --- Node.js setup ---
       - name: Set up Node.js
@@ -36,21 +35,38 @@ jobs:
         with:
           node-version: '20'
 
+      # --- Node.js caching ---
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: lumen-react-app/backend-node/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('lumen-react-app/backend-node/package-lock.json') }}
+
+      # --- Node install dependencies ---
       - name: Install Node dependencies (clean)
         run: |
           rm -rf node_modules package-lock.json
-          npm install
-        working-directory:  lumen-react-app/backend-node
+          npm install --legacy-peer-deps
+        working-directory: lumen-react-app/backend-node
 
+      # --- Fix permissions for binaries ---
       - name: Fix permissions for binaries
         run: chmod -R u+x node_modules/.bin
-        working-directory: backend-node
+        working-directory: lumen-react-app/backend-node
 
+      # --- Wait for MySQL to be ready ---
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            mysqladmin ping -h 127.0.0.1 -p$MYSQL_ROOT_PASSWORD && break
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      # --- Run Node Jest tests ---
       - name: Run Node Jest tests
         run: npx jest --runInBand
-        working-directory: backend-node
-
-
+        working-directory: lumen-react-app/backend-node
 
       # --- PHP / Lumen setup ---
       - name: Set up PHP
@@ -59,13 +75,26 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, pdo_mysql, bcmath, curl
 
+      # --- Composer caching ---
+      - name: Cache Composer
+        uses: actions/cache@v3
+        with:
+          path: lumen-react-app/backend-lumen/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('lumen-react-app/backend-lumen/composer.lock') }}
+
+      # --- Install Composer dependencies ---
       - name: Install Composer dependencies
         run: composer install --no-progress --no-interaction
-        working-directory: backend-lumen
+        working-directory: lumen-react-app/backend-lumen
 
+      # --- Copy .env if needed ---
+      - name: Copy .env
+        run: cp lumen-react-app/.env.example lumen-react-app/backend-lumen/.env
+
+      # --- Run Lumen tests ---
       - name: Run Lumen tests
         run: php artisan test
-        working-directory: backend-lumen
+        working-directory: lumen-react-app/backend-lumen
         env:
           DB_CONNECTION: mysql
           DB_HOST: 127.0.0.1
@@ -73,12 +102,3 @@ jobs:
           DB_DATABASE: lumen_db
           DB_USERNAME: root
           DB_PASSWORD: Sql%055705
-
-  build_and_deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - uses: actions/checkout@v3
-
