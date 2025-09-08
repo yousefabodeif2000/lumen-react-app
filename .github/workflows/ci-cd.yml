@@ -25,7 +25,9 @@ jobs:
 
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
       # --- Node.js setup ---
       - name: Set up Node.js
@@ -33,16 +35,14 @@ jobs:
         with:
           node-version: '20'
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install Node dependencies
-        run: npm install
+      - name: Install Node dependencies (clean)
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
         working-directory: backend-node
 
-      - name: Fix Jest permissions
-        run: chmod +x node_modules/.bin/jest
+      - name: Fix permissions for binaries
+        run: chmod -R u+x node_modules/.bin
         working-directory: backend-node
 
       - name: Run Node Jest tests
