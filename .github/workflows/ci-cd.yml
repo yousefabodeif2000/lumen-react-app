@@ -1,97 +1,116 @@
-name: CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+
     services:
       mysql:
-        image: mysql:8
+        image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: lumen_db
+          MYSQL_DATABASE: lumen_test
+          MYSQL_USER: lumen
+          MYSQL_PASSWORD: secret
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -proot"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
 
-    env:
-      DB_CONNECTION: mysql
-      DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_DATABASE: lumen_db
-      DB_USERNAME: root
-      DB_PASSWORD: root
-      LUMEN_API_URL: http://127.0.0.1:8000
-      COMPOSER_PROCESS_TIMEOUT: 0
-      COMPOSER_NO_INTERACTION: 1
-      COMPOSER_NO_AUDIT: 1
-      JWT_SECRET: gs8j6z7mtGhlm7gheS6OamfeSRij6EAiTa3aY4HsA1HgiEjugIK3sipnsWjcw4v2
-      REDIS_HOST: 127.0.0.1
-      REDIS_PORT: 6379
-      REDIS_CLIENT: predis
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
+      # -----------------------
+      # PHP / Lumen Setup
+      # -----------------------
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql, tokenizer
 
-      - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+      - name: Install PHP dependencies
         working-directory: ./backend-lumen
+        run: composer install --no-progress --prefer-dist
 
-      - name: Wait for MySQL
-        run: |
-          until mysql -h 127.0.0.1 -uroot -proot -e "SELECT 1"; do
-            sleep 5
-          done
-
-      - name: Run migrations
+      - name: Run Migrations
+        working-directory: ./backend-lumen
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: lumen_test
+          DB_USERNAME: lumen
+          DB_PASSWORD: secret
         run: php artisan migrate --force
-        working-directory: ./backend-lumen
 
-      - name: Run seeders (optional if needed for tests)
-        run: php artisan db:seed --force
+      - name: Start Lumen API
         working-directory: ./backend-lumen
+        run: php -S 127.0.0.1:8000 -t public &
+      
+      - name: Wait for Lumen API
+        run: |
+          for i in {1..20}; do
+            if curl -s http://127.0.0.1:8000 > /dev/null; then
+              echo "Lumen is up!"
+              exit 0
+            fi
+            echo "Waiting for Lumen..."
+            sleep 3
+          done
+          echo "Lumen did not start in time"
+          exit 1
 
-      - name: Run PHPUnit tests
+      - name: Run PHPUnit Tests
+        working-directory: ./backend-lumen
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: lumen_test
+          DB_USERNAME: lumen
+          DB_PASSWORD: secret
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          LUMEN_API_URL: http://127.0.0.1:8000
         run: php ./vendor/bin/phpunit --configuration phpunit.xml
-        working-directory: ./backend-lumen
 
-
-      # --- Node.js setup ---
+      # -----------------------
+      # Node / Jest Setup
+      # -----------------------
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
-
-      - name: Cache Node modules
-        uses: actions/cache@v3
-        with:
-          path: lumen-react-app/backend-node/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('lumen-react-app/backend-node/package-lock.json') }}
+          node-version: '18'
 
       - name: Install Node dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install --legacy-peer-deps
         working-directory: ./backend-node
+        run: npm install
 
-      - name: Fix permissions for binaries
-        run: chmod -R u+x node_modules/.bin
+      - name: Run Jest Tests
         working-directory: ./backend-node
-
-      - name: Run Node Jest tests
-        run: npx jest --runInBand
-        working-directory: ./backend-node
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: lumen_test
+          DB_USERNAME: lumen
+          DB_PASSWORD: secret
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          LUMEN_API_URL: http://127.0.0.1:8000
+        run: npx jest --runInBand --detectOpenHandles
