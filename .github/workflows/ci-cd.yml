@@ -1,64 +1,70 @@
-name: CI/CD Pipeline
+name: CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     services:
       mysql:
-        image: mysql:8.0
+        image: mysql:8
         env:
+          MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: lumen_db
-          MYSQL_ROOT_PASSWORD: Sql%055705
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -uroot -pSql%055705"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
 
-    env: # ✅ Unified env for all steps
+    env:
       DB_CONNECTION: mysql
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
       DB_DATABASE: lumen_db
       DB_USERNAME: root
-      DB_PASSWORD: Sql%055705
+      DB_PASSWORD: root
       LUMEN_API_URL: http://127.0.0.1:8000
+      COMPOSER_PROCESS_TIMEOUT: 0
+      COMPOSER_NO_INTERACTION: 1
+      COMPOSER_NO_AUDIT: 1
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          path: lumen-react-app
 
-      # --- PHP / Lumen setup ---
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, pdo_mysql, bcmath, curl
-
-      - name: Cache Composer
-        uses: actions/cache@v3
-        with:
-          path: lumen-react-app/backend-lumen/vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('lumen-react-app/backend-lumen/composer.lock') }}
 
       - name: Install Composer dependencies
-        run: composer install --no-progress --no-interaction
-        working-directory: lumen-react-app/backend-lumen
+        run: composer install --prefer-dist --no-progress --no-suggest
+        working-directory: ./backend-lumen
 
-      - name: Run Lumen tests
+      - name: Wait for MySQL
+        run: |
+          until mysql -h 127.0.0.1 -uroot -proot -e "SELECT 1"; do
+            sleep 5
+          done
+
+      - name: Run migrations
+        run: php artisan migrate --force
+        working-directory: ./backend-lumen
+
+      - name: Run seeders (optional if needed for tests)
+        run: php artisan db:seed --force
+        working-directory: ./backend-lumen
+
+      - name: Run PHPUnit tests
         run: php ./vendor/bin/phpunit --configuration phpunit.xml
-        working-directory: lumen-react-app/backend-lumen
+        working-directory: ./backend-lumen
+
 
       # --- Node.js setup ---
       - name: Set up Node.js
