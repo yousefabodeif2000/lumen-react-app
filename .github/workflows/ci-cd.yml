@@ -76,6 +76,12 @@ jobs:
         working-directory: ./backend-lumen
         run: php -S 127.0.0.1:8000 -t public &
       
+      - name: Wait for Lumen to be ready
+        run: |
+          until curl -s http://127.0.0.1:8000/api/health; do
+            sleep 1
+          done
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
