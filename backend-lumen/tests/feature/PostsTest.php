@@ -89,8 +89,8 @@ class PostsTest extends TestCase
     {
         // Arrange: create a user
         $user = User::create([
-            'name' => 'Tester',
-            'email' => 'test@example.com',
+            'name' => 'Tester'. $this->randomNumber,
+            'email' => 'test' . $this->randomNumber . '@example.com',
             'password' => app('hash')->make('secret'),
         ]);
 
