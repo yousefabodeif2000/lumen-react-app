@@ -34,6 +34,10 @@ jobs:
       COMPOSER_PROCESS_TIMEOUT: 0
       COMPOSER_NO_INTERACTION: 1
       COMPOSER_NO_AUDIT: 1
+      JWT_SECRET: gs8j6z7mtGhlm7gheS6OamfeSRij6EAiTa3aY4HsA1HgiEjugIK3sipnsWjcw4v2
+      REDIS_HOST=127.0.0.1
+      REDIS_PORT=6379
+      REDIS_CLIENT: predis
 
     steps:
       - uses: actions/checkout@v3
