@@ -86,12 +86,12 @@ jobs:
         run: |
           rm -rf node_modules package-lock.json
           npm install --legacy-peer-deps
-        working-directory: lumen-react-app/backend-node
+        working-directory: ./backend-node
 
       - name: Fix permissions for binaries
         run: chmod -R u+x node_modules/.bin
-        working-directory: lumen-react-app/backend-node
+        working-directory: ./backend-node
 
       - name: Run Node Jest tests
         run: npx jest --runInBand
-        working-directory: lumen-react-app/backend-node
+        working-directory: ./backend-node
