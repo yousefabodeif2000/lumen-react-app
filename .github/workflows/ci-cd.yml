@@ -11,8 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      APP_ENV: testing
       DB_CONNECTION: sqlite
-      DB_DATABASE: ":memory:"
+      DB_DATABASE: /tmp/lumen_test.sqlite
       REDIS_CLIENT: array
       LUMEN_API_URL: http://127.0.0.1:8000
       COMPOSER_PROCESS_TIMEOUT: 0
