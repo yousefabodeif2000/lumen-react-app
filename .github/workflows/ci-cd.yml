@@ -84,7 +84,7 @@ jobs:
 
       # --- Run Lumen tests ---
       - name: Run Lumen tests
-        run: php artisan test
+        run: ./vendor/bin/phpunit --configuration phpunit.xml
         working-directory: lumen-react-app/backend-lumen
 
       # --- Node.js setup ---
