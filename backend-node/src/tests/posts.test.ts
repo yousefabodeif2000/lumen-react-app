@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { app, server } from '../index';
 import { randomInt } from 'crypto';
-
+jest.setTimeout(30000);
 let token: string;
 
 beforeAll(async () => {

@@ -58,7 +58,7 @@ jobs:
       # --- Wait for MySQL ---
       - name: Wait for MySQL
         run: |
-          until mysqladmin ping -h127.0.0.1 -uroot -p"Sql%055705" --silent; do
+          until mysqladmin ping -hmysql -uroot -p"Sql%055705" --silent; do
             echo "Waiting for MySQL..."
             sleep 5
           done
@@ -66,14 +66,14 @@ jobs:
       # --- Create test database ---
       - name: Create test database
         run: |
-          mysql -uroot -p"Sql%055705" -h127.0.0.1 -e "CREATE DATABASE IF NOT EXISTS lumen_db;"
+          mysql -hmysql -uroot -p"Sql%055705" -e "CREATE DATABASE IF NOT EXISTS lumen_db;"
 
-      # --- Run Node migrations (if you have them) ---
+      # --- Run Node migrations (adjust to your migration tool) ---
       - name: Run Node migrations
         run: npm run migrate || echo "No Node migrations"
         working-directory: lumen-react-app/backend-node
         env:
-          DB_HOST: 127.0.0.1
+          DB_HOST: mysql
           DB_PORT: 3306
           DB_DATABASE: lumen_db
           DB_USERNAME: root
@@ -84,11 +84,12 @@ jobs:
         run: npx jest --runInBand
         working-directory: lumen-react-app/backend-node
         env:
-          DB_HOST: 127.0.0.1
+          DB_HOST: mysql
           DB_PORT: 3306
           DB_DATABASE: lumen_db
           DB_USERNAME: root
           DB_PASSWORD: Sql%055705
+
 
       # --- PHP / Lumen setup ---
       - name: Set up PHP
