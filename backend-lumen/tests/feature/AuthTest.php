@@ -7,8 +7,6 @@ use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
-    use DatabaseMigrations;
-
     protected int $randomNumber;
 
     protected function setUp(): void
