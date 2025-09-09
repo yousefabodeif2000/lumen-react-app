@@ -1,5 +1,13 @@
 <?php
 
+$router->get('/api/health', function () use ($router) {
+    return response()->json(['status' => 'ok']);
+});
+
+
+
+
+
 $router->post('/api/register', 'AuthController@register');
 $router->post('/api/login', 'AuthController@login');
 
