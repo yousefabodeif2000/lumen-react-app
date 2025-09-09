@@ -11,6 +11,15 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: lumen_db
+      DB_USERNAME: root
+      DB_PASSWORD: Sql%055705
+      LUMEN_API_URL: http://127.0.0.1:8000
+
     services:
       mysql:
         image: mysql:8.0
@@ -29,6 +38,54 @@ jobs:
       - uses: actions/checkout@v3
         with:
           path: lumen-react-app
+
+      # --- Wait for MySQL ---
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h127.0.0.1 -uroot -p"$DB_PASSWORD" --silent; do
+            echo "Waiting for MySQL..."
+            sleep 5
+          done
+
+      # --- Create test database ---
+      - name: Create test database
+        run: |
+          mysql -h127.0.0.1 -u$DB_USERNAME -p"$DB_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DB_DATABASE;"
+
+      # --- PHP / Lumen setup ---
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql, bcmath, curl
+
+      # --- Composer caching ---
+      - name: Cache Composer
+        uses: actions/cache@v3
+        with:
+          path: lumen-react-app/backend-lumen/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('lumen-react-app/backend-lumen/composer.lock') }}
+
+      # --- Install Composer dependencies ---
+      - name: Install Composer dependencies
+        run: composer install --no-progress --no-interaction
+        working-directory: lumen-react-app/backend-lumen
+
+      # --- Run Lumen migrations ---
+      - name: Run Lumen migrations
+        run: php artisan migrate --force
+        working-directory: lumen-react-app/backend-lumen
+
+      # --- Start Lumen server in background ---
+      - name: Start Lumen server
+        run: |
+          nohup php -S 127.0.0.1:8000 -t public > lumen.log 2>&1 & 
+        working-directory: lumen-react-app/backend-lumen
+
+      # --- Run Lumen tests ---
+      - name: Run Lumen tests
+        run: php artisan test
+        working-directory: lumen-react-app/backend-lumen
 
       # --- Node.js setup ---
       - name: Set up Node.js
@@ -55,81 +112,7 @@ jobs:
         run: chmod -R u+x node_modules/.bin
         working-directory: lumen-react-app/backend-node
 
-      # --- Wait for MySQL ---
-      - name: Wait for MySQL
-        run: |
-          until mysqladmin ping -hmysql -uroot -p"Sql%055705" --silent; do
-            echo "Waiting for MySQL..."
-            sleep 5
-          done
-
-      # --- Create test database ---
-      - name: Create test database
-        run: |
-          mysql -hmysql -uroot -p"Sql%055705" -e "CREATE DATABASE IF NOT EXISTS lumen_db;"
-
-      # --- Run Node migrations (adjust to your migration tool) ---
-      - name: Run Node migrations
-        run: npm run migrate || echo "No Node migrations"
-        working-directory: lumen-react-app/backend-node
-        env:
-          DB_HOST: mysql
-          DB_PORT: 3306
-          DB_DATABASE: lumen_db
-          DB_USERNAME: root
-          DB_PASSWORD: Sql%055705
-
       # --- Run Node Jest tests ---
       - name: Run Node Jest tests
         run: npx jest --runInBand
         working-directory: lumen-react-app/backend-node
-        env:
-          DB_HOST: mysql
-          DB_PORT: 3306
-          DB_DATABASE: lumen_db
-          DB_USERNAME: root
-          DB_PASSWORD: Sql%055705
-
-
-      # --- PHP / Lumen setup ---
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, pdo_mysql, bcmath, curl
-
-      # --- Composer caching ---
-      - name: Cache Composer
-        uses: actions/cache@v3
-        with:
-          path: lumen-react-app/backend-lumen/vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('lumen-react-app/backend-lumen/composer.lock') }}
-
-      # --- Install Composer dependencies ---
-      - name: Install Composer dependencies
-        run: composer install --no-progress --no-interaction
-        working-directory: lumen-react-app/backend-lumen
-
-      # --- Run Lumen migrations ---
-      - name: Run Lumen migrations
-        run: php artisan migrate --force
-        working-directory: lumen-react-app/backend-lumen
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_DATABASE: lumen_db
-          DB_USERNAME: root
-          DB_PASSWORD: Sql%055705
-
-      # --- Run Lumen tests ---
-      - name: Run Lumen tests
-        run: php artisan test
-        working-directory: lumen-react-app/backend-lumen
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_DATABASE: lumen_db
-          DB_USERNAME: root
-          DB_PASSWORD: Sql%055705
