@@ -1,5 +1,7 @@
 <?php 
+
 namespace Tests\Feature; 
+
 use Laravel\Lumen\Testing\DatabaseMigrations; 
 use Tests\TestCase;
 use App\Models\User;
@@ -8,17 +10,26 @@ use Illuminate\Support\Facades\Redis;
 
 class PostsTest extends TestCase 
 { 
+    use DatabaseMigrations;
+
     protected int $randomNumber;
 
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->randomNumber = random_int(1000, 9999);
+
+        // Mock Redis globally so tests don’t fail in CI
+        Redis::shouldReceive('get')->andReturn(null);
+        Redis::shouldReceive('set')->andReturn(true);
+        Redis::shouldReceive('expire')->andReturn(true);
+        Redis::shouldReceive('del')->andReturn(true);
     }
+
     /** @test */
     public function it_can_fetch_all_posts()
     {
-        // Arrange: create a user and some posts
         $user = User::create([
             'name' => 'Tester' . $this->randomNumber,
             'email' => 'test' . $this->randomNumber . '@example.com',
@@ -31,17 +42,17 @@ class PostsTest extends TestCase
             'content' => 'Content 1',
         ]);
 
-       Post::create([
+        Post::create([
             'user_id' => $user->id,
             'title'   => 'Post 2',
             'content' => 'Content 2',
         ]);
 
-        // Act: generate JWT token and make GET request
         $token = app('auth')->attempt([
             'email' => $user->email,
             'password' => 'secret'
         ]);
+        $this->assertNotFalse($token, "JWT token generation failed");
 
         $this->get('/api/posts', ['Authorization' => "Bearer $token"])
             ->seeStatusCode(200)
@@ -49,26 +60,22 @@ class PostsTest extends TestCase
                 '*' => ['id', 'title', 'content', 'user_id', 'created_at', 'updated_at']
             ]);
     }
-      /** @test */
+
+    /** @test */
     public function authenticated_user_can_create_a_post()
     {
-        // Arrange: create a user
         $user = User::create([
             'name' => 'Tester'. $this->randomNumber,
             'email' => 'test' . $this->randomNumber . '@example.com',
             'password' => app('hash')->make('secret'),
         ]);
 
-        // Generate JWT token
         $token = app('auth')->attempt([
             'email' => $user->email,
             'password' => 'secret'
         ]);
+        $this->assertNotFalse($token, "JWT token generation failed");
 
-        // Optionally mock Redis so test doesn't depend on running Redis
-        Redis::shouldReceive('del')->once();
-
-        // Act: make POST request to create a post
         $this->post('/api/posts', [
             'title' => 'My First Post',
             'content' => 'This is a test post content.'
@@ -78,36 +85,33 @@ class PostsTest extends TestCase
             'id', 'title', 'content', 'user_id', 'created_at', 'updated_at'
         ]);
 
-        // Assert the post is actually in the database
         $this->seeInDatabase('posts', [
             'title' => 'My First Post',
             'user_id' => $user->id
         ]);
     }
-     /** @test */
+
+    /** @test */
     public function authenticated_user_can_fetch_post_by_id()
     {
-        // Arrange: create a user
         $user = User::create([
             'name' => 'Tester'. $this->randomNumber,
             'email' => 'test' . $this->randomNumber . '@example.com',
             'password' => app('hash')->make('secret'),
         ]);
 
-        // Create a post for that user
         $post = Post::create([
             'user_id' => $user->id,
             'title' => 'Test Post',
             'content' => 'Content of the test post',
         ]);
 
-        // Generate JWT token
         $token = app('auth')->attempt([
             'email' => $user->email,
             'password' => 'secret'
         ]);
+        $this->assertNotFalse($token, "JWT token generation failed");
 
-        // Act: make GET request to /api/posts/{id}
         $this->get("/api/posts/{$post->id}", [
             'Authorization' => "Bearer $token"
         ])
@@ -122,5 +126,4 @@ class PostsTest extends TestCase
             'user_id' => $user->id
         ]);
     }
-
 }
