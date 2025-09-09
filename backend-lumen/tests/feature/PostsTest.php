@@ -8,15 +8,20 @@ use Illuminate\Support\Facades\Redis;
 
 class PostsTest extends TestCase 
 { 
-   use DatabaseMigrations;
+    protected int $randomNumber;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->randomNumber = random_int(1000, 9999);
+    }
     /** @test */
     public function it_can_fetch_all_posts()
     {
         // Arrange: create a user and some posts
         $user = User::create([
-            'name' => 'Tester',
-            'email' => 'test@example.com',
+            'name' => 'Tester' . $this->randomNumber,
+            'email' => 'test' . $this->randomNumber . '@example.com',
             'password' => app('hash')->make('secret'),
         ]);
 
@@ -49,8 +54,8 @@ class PostsTest extends TestCase
     {
         // Arrange: create a user
         $user = User::create([
-            'name' => 'Tester',
-            'email' => 'test@example.com',
+            'name' => 'Tester'. $this->randomNumber,
+            'email' => 'test' . $this->randomNumber . '@example.com',
             'password' => app('hash')->make('secret'),
         ]);
 

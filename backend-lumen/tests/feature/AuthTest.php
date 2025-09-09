@@ -19,7 +19,7 @@ class AuthTest extends TestCase
     public function it_can_register_a_user()
     {
         $this->post('/api/register', [
-            'name' => 'Test User',
+            'name' => 'TestUser'. $this->randomNumber,
             'email' => 'test' . $this->randomNumber . '@example.com',
             'password' => 'secret',
         ])
@@ -31,7 +31,7 @@ class AuthTest extends TestCase
     public function it_can_login_with_valid_credentials()
     {
         $user = \App\Models\User::create([
-            'name' => 'Tester',
+            'name' => 'TestUser'. $this->randomNumber,
             'email' => 'test' . $this->randomNumber . '@example.com',
             'password' => app('hash')->make('secret'),
         ]);
