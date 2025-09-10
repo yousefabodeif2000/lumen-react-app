@@ -18,6 +18,6 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         // Refresh DB before each test
-        Artisan::call('migrate:fresh');
+        Artisan::call('migrate');
     }
 }
