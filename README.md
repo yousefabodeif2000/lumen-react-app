@@ -1,11 +1,11 @@
-# Lumen-React Project with Node.js Caching Layer
+# Lumen-React Project with Node.js Caching Layer and RBAC
 
-![Build](https://img.shields.io/github/actions/workflow/status/yousefabodeif2000/lumen-react-app/ci.yml?branch=main) 
-![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen) 
-![Docker Pulls](https://img.shields.io/docker/pulls/yousefabodeif/lumen-react-app) 
+![Build](https://img.shields.io/github/actions/workflow/status/yousefabodeif2000/lumen-react-app/branch=main)  
+![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)  
+![Docker Pulls](https://img.shields.io/docker/pulls/yousefabodeif/lumen-react-app)  
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-A full-stack web application built with **React** for the frontend, **Lumen (PHP)** for the main backend, and **Node.js** as a caching/API layer. The app supports user authentication, post creation, caching, and unit testing.
+A full-stack web application built with **React** (frontend), **Lumen (PHP)** (backend), and **Node.js** as a caching/API layer. It features user authentication, post management, Redis caching, **RBAC (roles & permissions)**, **GraphQL API**, **WebSockets for live updates**, and unit testing.
 
 ---
 
@@ -18,6 +18,9 @@ A full-stack web application built with **React** for the frontend, **Lumen (PHP
   - [Setup Lumen Backend](#setup-lumen-backend)  
   - [Setup Node.js Caching Layer](#setup-nodejs-caching-layer)  
   - [Setup React Frontend](#setup-react-frontend)  
+- [RBAC Management](#rbac-management)  
+- [GraphQL API](#graphql-api)  
+- [WebSockets](#websockets)  
 - [Running Tests](#running-tests)  
 - [Docker Setup](#docker-setup)  
 - [Notes](#notes)  
@@ -28,24 +31,29 @@ A full-stack web application built with **React** for the frontend, **Lumen (PHP
 ## Features
 
 - **User Authentication**: Login and registration with JWT tokens.  
-- **Post Management**: Users can create, view, and manage posts.  
+- **Role-Based Access Control (RBAC)**: Users can have roles (admin, editor, user) with specific permissions. Middleware enforces access for protected routes.  
+- **Post Management**: Create, view, update, and delete posts based on permissions.  
 - **Optimistic UI Updates**: Newly created posts appear instantly without waiting for server response.  
-- **Caching**: Posts are cached in **Redis** via Node.js for faster retrieval.  
-- **Unit Testing**: Backend routes and authentication logic are tested with PHPUnit.  
-- **Docker Support**: Containerized setup for easy deployment.  
+- **Caching**: Posts are cached in **Redis** via Node.js for faster retrieval. Cache expires after 60 seconds.  
+- **GraphQL API**: Query posts and users efficiently via GraphQL endpoints.  
+- **WebSockets (Socket.io)**: Real-time updates for newly created posts.  
+- **Unit Testing**: Backend tested with PHPUnit and Node.js tests.  
+- **Docker Support**: Containerized setup for easy deployment.
 
 ---
 
 ## Tech Stack
 
-| Layer     | Technology            |
-|-----------|----------------------|
-| Frontend  | React, TypeScript, Axios |
-| Backend   | Lumen (PHP), Node.js  |
-| Database  | PostgreSQL / MySQL    |
-| Cache     | Redis                 |
-| Testing   | PHPUnit               |
-| Deployment| Docker, Docker Compose|
+| Layer     | Technology                     |
+|-----------|--------------------------------|
+| Frontend  | React, TypeScript, Axios       |
+| Backend   | Lumen (PHP), Node.js           |
+| Database  | PostgreSQL / MySQL             |
+| Cache     | Redis                          |
+| Real-time | WebSockets (Socket.io)         |
+| API       | GraphQL                        |
+| Testing   | PHPUnit, Jest                  |
+| Deployment| Docker, Docker Compose         |
 
 ---
 
@@ -65,14 +73,17 @@ A full-stack web application built with **React** for the frontend, **Lumen (PHP
 ### Setup Lumen Backend
 
 1. Clone the repository:  
-   ```bash
-   git clone <repo_url>
-   cd backend-lumen
-2. Install dependencies:
+```bash
+git clone <https://github.com/yousefabodeif2000/lumen-react-app>
+cd backend-lumen
 ```
+
+2. Install dependencies:
+```bash
 composer install
 ```
-3. Configure .env file:
+
+3. Configure `.env` file:
 ```
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -80,93 +91,146 @@ DB_PORT=3306
 DB_DATABASE=your_db
 DB_USERNAME=your_user
 DB_PASSWORD=your_pass
+
 CACHE_DRIVER=redis
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
+
 JWT_SECRET=your_secret_key
 ```
 
-4. Run migrations:
+4. Run migrations & seeders:
 ```bash
-php artisan migrate
+php artisan migrate --seed
 ```
-5. Start the server:
+
+5. Start the backend server:
 ```bash
 php -S localhost:8000 -t public
 ```
 
+---
+
 ### Setup Node.js Caching Layer
 
 1. Navigate to Node backend folder:
-```
+```bash
 cd backend-node
 ```
 
 2. Install dependencies:
-```
+```bash
 npm install
 ```
-3. Configure .env with API and Redis credentials.
 
-4. Start server:
-```
+3. Configure `.env` with API and Redis credentials.
+
+4. Start the Node.js server:
+```bash
 npm run dev
 ```
+
+---
 
 ### Setup React Frontend
 
-Navigate to frontend folder:
-```
+1. Navigate to frontend folder:
+```bash
 cd frontend
 ```
 
-1. Install dependencies:
-```
+2. Install dependencies:
+```bash
 npm install
 ```
 
-2. Start development server:
-```
+3. Start the frontend server:
+```bash
 npm run dev
 ```
 
-3.Open http://localhost:3000 in your browser.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## RBAC Management
+
+- Admin users can manage roles and permissions via **Admin API endpoints**.  
+- **Assign role to user:** `POST /admin/users/{userId}/assign-role`  
+- **Remove role from user:** `POST /admin/users/{userId}/remove-role`  
+- **Assign permission to role:** `POST /admin/roles/{roleId}/assign-permission`  
+- **Remove permission from role:** `POST /admin/roles/{roleId}/remove-permission`  
+
+> Permissions control access to creating, editing, deleting posts, and accessing admin endpoints.
+
+---
+
+## GraphQL API
+
+- Lumen backend exposes a GraphQL endpoint: `/graphql`  
+- Example queries:
+```graphql
+query {
+  posts {
+    id
+    title
+    content
+    user {
+      name
+    }
+  }
+}
+```
+- Supports filtering, pagination, and relational queries.
+
+---
+
+## WebSockets
+
+- Node.js layer provides **Socket.io** for live updates.  
+- When a new post is created, all connected clients receive a real-time event.  
+- Frontend subscribes to `post_created` events to update the UI instantly.
+
+---
 
 ## Running Tests
 
 ### PHPUnit (Lumen backend)
-```
+```bash
 php artisan test
 ```
 
 ### Node.js tests
-```
+```bash
 npm test
 ```
+
+---
+
 ## Docker Setup
 
 1. Build and start all services:
-```
+```bash
 docker-compose up --build
 ```
 
 ### Access services:
 
-**Frontend**: ``` http://localhost:5173 ```
+- **Frontend**: [http://localhost:5173](http://localhost:5173)  
+- **Lumen backend**: [http://localhost:9000](http://localhost:9000)  
+- **Node backend**: [http://localhost:3000](http://localhost:3000)  
 
-**Lumen backend**: ```http://localhost:9000```
-
-**Node backend**: ```http://localhost:3000```
+---
 
 ## Notes
 
-Redis caching is used for the posts endpoint to reduce database queries. Cache expires in **60 seconds**.
+- Redis caching reduces database queries and improves response time.  
+- RBAC ensures fine-grained access control.  
+- WebSockets provide live updates for post creation.  
+- GraphQL allows flexible data querying from frontend.  
 
-After creating a post, the frontend automatically fetches updated posts for real-time display.
-
-JWT authentication is required for protected routes.
-
+---
 
 ## License
 
-This project is open-source and available under the MIT License.
+This project is open-source under the MIT License.
