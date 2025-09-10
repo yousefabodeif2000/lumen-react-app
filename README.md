@@ -3,7 +3,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-A full-stack web application built with **React** (frontend), **Lumen (PHP)** (backend), and **Node.js** as a caching/API layer. It features user authentication, post management, Redis caching, **RBAC (roles & permissions)**, REST API, and unit testing.
+A full-stack web application built with React, Lumen (PHP), and Node.js as a caching/API layer. It features user authentication, post management, Redis caching, RBAC (roles & permissions), REST API, and unit testing.
 
 ---
 
