@@ -42,6 +42,18 @@ jobs:
         working-directory: ./backend-lumen
         run: php -S 127.0.0.1:9000 -t public &
 
+      - name: Wait for Lumen to be ready
+        run: |
+          for i in {1..20}; do
+            if curl -s http://127.0.0.1:9000/ping >/dev/null; then
+              echo "Lumen is up!"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Lumen did not start in time"
+          exit 1
+
 
       # --- Node.js setup ---
       - name: Set up Node.js
@@ -66,5 +78,8 @@ jobs:
         working-directory: ./backend-node
 
       - name: Run Node Jest tests
-        run: npm test -- --runInBand
+        run: |
+          cp .env.test .env
+          npm test -- --runInBand
         working-directory: ./backend-node
+
