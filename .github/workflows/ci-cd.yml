@@ -51,8 +51,14 @@ jobs:
           path: backend-node/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('backend-node/package-lock.json') }}
 
-      - name: Install Node dependencies
-        run: npm ci --legacy-peer-deps
+      - name: Install Node dependencies 
+        run: | 
+         rm -rf node_modules package-lock.json 
+         npm install --legacy-peer-deps 
+        working-directory: ./backend-node
+
+      - name: Fix permissions for binaries 
+        run: chmod -R u+x node_modules/.bin 
         working-directory: ./backend-node
 
       - name: Run Node Jest tests
