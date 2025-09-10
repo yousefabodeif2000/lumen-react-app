@@ -6,7 +6,7 @@
 A full-stack web application built with React, Lumen (PHP), and Node.js as a caching/API layer. It features user authentication, post management, Redis caching, RBAC (roles & permissions), REST API, and unit testing.
 
 ---
-![Project Logo](/posts_page.png)
+![Project Logo](posts_page.png)
 
 ## Table of Contents
 
