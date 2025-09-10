@@ -17,7 +17,8 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        // Refresh DB before each test
-        Artisan::call('migrate');
+        // fresh schema before each suite
+        $this->artisan('migrate:fresh', ['--seed' => true]);
     }
+
 }

@@ -34,10 +34,14 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
         working-directory: ./backend-lumen
 
-      - name: Run PHPUnit tests
-        run: php ./vendor/bin/phpunit --configuration phpunit.xml 
+      - name: Copy CI environment
+        run: cp .env.ci .env
         working-directory: ./backend-lumen
-        
+
+      - name: Run PHPUnit tests
+        run: php ./vendor/bin/phpunit --testdox
+        working-directory: ./backend-lumen
+
       - name: Start Lumen server
         working-directory: ./backend-lumen
         run: php -S 127.0.0.1:9000 -t public &
