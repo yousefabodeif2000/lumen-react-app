@@ -16,10 +16,6 @@ COPY src ./src
 # Copy tsconfig.json if you have it
 COPY tsconfig.json ./
 
-# Copy .env file (optional if you mount it via docker-compose)
-# You can remove this if you use docker-compose env_file mount
-# COPY .env .env
-
 # Install ts-node and TypeScript globally
 RUN npm install -g ts-node typescript
 

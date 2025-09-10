@@ -4,6 +4,37 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import PostsPage from './pages/PostsPage';
 import ProtectedRoute from './ProtectedRoute';
+/**
+ * App Component
+ *
+ * The main entry point for the React frontend.
+ *
+ * Features:
+ * - Provides routing between LoginPage, RegisterPage, and PostsPage using React Router.
+ * - Displays a top navigation bar (NavBar) with links and user greeting.
+ * - Handles login state via localStorage token.
+ * - Protects the /posts route using ProtectedRoute.
+ * - Automatically updates login state every 500ms to reflect token changes.
+ *
+ * Components:
+ * - NavBar: Shows links to Login, Register, Posts; displays username when logged in; includes Logout button.
+ * - Routes:
+ *   - /login → LoginPage
+ *   - /register → RegisterPage
+ *   - /posts → PostsPage (protected)
+ *
+ * State:
+ * - isLoggedIn: boolean indicating whether a user is logged in.
+ *
+ * Example usage:
+ * ```jsx
+ * <App />
+ * ```
+ *
+ * Notes:
+ * - Login and registration tokens are stored in localStorage.
+ * - NavBar updates dynamically based on login state.
+ */
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));

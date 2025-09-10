@@ -6,6 +6,15 @@ import { Post, RawPost } from '../interfaces';
 
 const cacheRouter = Router();
 
+/**
+ * Pings the Lumen backend to debug and check connectivity.
+ *
+ * Route: GET /ping-lumen
+ *
+ * Responses:
+ * 200 OK → Forwarded response from Lumen API
+ * 500 Internal Server Error → { "error": string }
+ */
 cacheRouter.get('/ping-lumen', async (req, res) => {
   try {
     const result = await pingLumen();
@@ -14,7 +23,32 @@ cacheRouter.get('/ping-lumen', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
+/**
+ * Retrieves all posts for the authenticated user, with caching.
+ *
+ * Route: GET /posts
+ *
+ * Headers:
+ *   Authorization: Bearer <JWT token>
+ *
+ * Cache:
+ *   Key format: posts_cache_<hashedToken>
+ *   TTL: 60 seconds
+ *
+ * Responses:
+ * 200 OK → [
+ *   {
+ *     "id": number,
+ *     "title": string,
+ *     "content": string,
+ *     "username": string,
+ *     "createdAt": string (ISO date)
+ *   },
+ *   ...
+ * ]
+ * 401 Unauthorized → { "error": "Missing token" }
+ * 500 Internal Server Error → { "error": string }
+ */
 cacheRouter.get('/posts', async (req, res) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1];
@@ -25,7 +59,7 @@ cacheRouter.get('/posts', async (req, res) => {
 
     const cachedPostsRaw = await getCached(cacheKey, async () => {
       const response = await getPosts(token);
-      return response.data; // <--- important
+      return response.data;
     }, 60);
 
     const cachedPosts: Post[] = Array.isArray(cachedPostsRaw) ? cachedPostsRaw : [];
@@ -53,7 +87,26 @@ cacheRouter.get('/posts', async (req, res) => {
   }
 });
 
-
+/**
+ * Retrieves a single post by ID, with caching.
+ *
+ * Route: GET /posts/:id
+ *
+ * Headers:
+ *   Authorization: Bearer <JWT token>
+ *
+ * Path params:
+ *   id: number; // required
+ *
+ * Cache:
+ *   Key format: post_<id>_cache_<hashedToken>
+ *   TTL: 60 seconds
+ *
+ * Responses:
+ * 200 OK → Post object (forwarded from Lumen API)
+ * 401 Unauthorized → { "error": "Missing token" }
+ * 500 Internal Server Error → { "error": string }
+ */
 cacheRouter.get('/posts/:id', async (req, res) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1] || '';

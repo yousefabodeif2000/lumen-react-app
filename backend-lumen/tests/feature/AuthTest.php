@@ -4,9 +4,12 @@ namespace Tests\Feature;
 
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Tests\TestCase;
+use App\Models\User;
 
 class AuthTest extends TestCase
 {
+    use DatabaseMigrations;
+
     protected int $randomNumber;
 
     protected function setUp(): void
@@ -19,7 +22,7 @@ class AuthTest extends TestCase
     public function it_can_register_a_user()
     {
         $this->post('/api/register', [
-            'name' => 'TestUser'. $this->randomNumber,
+            'name' => 'TestUser' . $this->randomNumber,
             'email' => 'test' . $this->randomNumber . '@example.com',
             'password' => 'secret',
         ])
@@ -30,8 +33,8 @@ class AuthTest extends TestCase
     /** @test */
     public function it_can_login_with_valid_credentials()
     {
-        $user = \App\Models\User::create([
-            'name' => 'TestUser'. $this->randomNumber,
+        User::create([
+            'name' => 'TestUser' . $this->randomNumber,
             'email' => 'test' . $this->randomNumber . '@example.com',
             'password' => app('hash')->make('secret'),
         ]);
@@ -41,7 +44,7 @@ class AuthTest extends TestCase
             'password' => 'secret',
         ])
         ->seeStatusCode(200)
-        ->seeJsonStructure(['token']);
+        ->seeJsonStructure(['token', 'user']);
     }
 
     /** @test */
@@ -53,5 +56,13 @@ class AuthTest extends TestCase
         ])
         ->seeStatusCode(401)
         ->seeJsonContains(['error' => 'Invalid Credentials']);
+    }
+
+    /** @test */
+    public function it_requires_authentication_to_access_posts()
+    {
+        $this->get('/api/posts')
+            ->seeStatusCode(401)
+            ->seeJsonContains(['error' => 'Unauthorized']);
     }
 }

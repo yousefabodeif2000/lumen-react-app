@@ -1,6 +1,56 @@
 import { useState } from 'react';
 import { api }  from '../api/api';
 
+/**
+ * LoginPage Component
+ *
+ * Description:
+ *  - A full-page login form for the application.
+ *  - Authenticates the user via the backend Node API (`POST /api/login`).
+ *  - Stores JWT token and user info in localStorage upon successful login.
+ *  - Redirects the user to the posts page.
+ *
+ * State:
+ *  - email: string — bound to email input field.
+ *  - password: string — bound to password input field.
+ *
+ * Behavior:
+ *  - On form submission:
+ *      1. Prevents default form submission.
+ *      2. Calls `api.post('/login', { email, password })`.
+ *      3. If successful:
+ *          - Saves JWT token to `localStorage` under key `token`.
+ *          - Saves user info to `localStorage` under key `user`.
+ *          - Redirects browser to `/posts`.
+ *      4. If failure:
+ *          - Displays an alert with error message from response or fallback message.
+ *
+ * API Call:
+ *  - Endpoint: POST /api/login
+ *  - Payload: { email: string, password: string }
+ *  - Response: { token: string, user: object }
+ *
+ * UI Elements:
+ *  - Email input (controlled)
+ *  - Password input (controlled)
+ *  - Submit button
+ *
+ * Styles:
+ *  - Full-page dark background container (flex-centered)
+ *  - White card with padding, rounded corners, shadow
+ *  - Inputs with padding, border-radius, and border
+ *  - Button with primary color, bold text, pointer cursor
+ *
+ * Usage:
+ *  - No props required.
+ *  - Simply render: <LoginPage />
+ *
+ * Notes:
+ *  - All state and form logic is handled internally.
+ *  - No external libraries other than `api` for HTTP request.
+ *  - Redirect uses `window.location.href` (can be swapped to `useNavigate` if using React Router).
+ */
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -12,7 +12,15 @@ class AuthServiceProvider extends ServiceProvider
     {
         //
     }
-
+    /**
+     * Bootstrap any application authentication services.
+     *
+     * This method extends the authentication system by registering
+     * a custom "jwt" guard. The guard uses the Tymon JWT library
+     * for handling token-based authentication.
+     *
+     * @return void
+     */
     public function boot()
     {
         Auth::extend('jwt', function ($app, $name, array $config) {

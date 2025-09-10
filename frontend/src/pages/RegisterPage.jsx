@@ -1,5 +1,32 @@
 import { useState } from 'react';
 import { api } from '../api/api';
+/**
+ * RegisterPage Component
+ *
+ * This component renders a registration form for new users.
+ * 
+ * Features:
+ * - Collects user input for name, email, and password.
+ * - Submits registration data to the backend via `api.post('/register')`.
+ * - Alerts the user upon success or failure.
+ * - Redirects to the login page after successful registration.
+ *
+ * State:
+ * - name: current input value for the user's name.
+ * - email: current input value for the user's email.
+ * - password: current input value for the user's password.
+ *
+ * UI:
+ * - Styled centered card layout.
+ * - Form with three input fields: name, email, password.
+ * - Submit button labeled "Sign Up".
+ * - Alerts user for success or error messages.
+ *
+ * Example usage:
+ * ```jsx
+ * <RegisterPage />
+ * ```
+ */
 
 export default function RegisterPage() {
   const [name, setName] = useState('');

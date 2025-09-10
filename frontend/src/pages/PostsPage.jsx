@@ -1,6 +1,51 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { api, cacheApi } from '../api/api';
 
+/**
+ * PostsPage Component
+ *
+ * This component renders a posts feed and allows creating new posts.
+ * 
+ * Features:
+ * - Fetches posts from the backend (Node API with caching layer) on mount.
+ * - Displays posts in newest-first order.
+ * - Allows creating posts with optimistic UI updates:
+ *   - Temporary post shown immediately.
+ *   - Replaced with server-confirmed post upon success.
+ *   - Removed if server request fails.
+ * - Auto-resizing textarea for post content.
+ * - Handles API errors with user-friendly alerts.
+ *
+ * State:
+ * - posts: array of posts fetched from backend.
+ * - title: current input value for post title.
+ * - content: current input value for post content.
+ * - loading: boolean indicating whether posts are being fetched.
+ *
+ * Refs:
+ * - textareaRef: used to dynamically resize content textarea.
+ *
+ * API Integration:
+ * - Uses `cacheApi.get('/posts')` to fetch posts with caching.
+ * - Uses `api.post('/posts')` to create new posts.
+ *
+ * UI:
+ * - Displays a loading state while fetching.
+ * - Shows a message if no posts exist.
+ * - Lists posts with title, content, author, and creation date.
+ *
+ * Optimistic UI:
+ * - Temporary post is immediately added to state.
+ * - Replaced with server-confirmed post if creation succeeds.
+ * - Removed if creation fails.
+ *
+ * Example usage:
+ * ```jsx
+ * <PostsPage />
+ * ```
+ */
+
+
 export default function PostsPage() {
   const [posts, setPosts] = useState([]);
   const [title, setTitle] = useState('');
@@ -116,7 +161,7 @@ export default function PostsPage() {
         </form>
 
         {loading ? (
-          <p style={{ textAlign: 'center', color: '#666' }}>⏳ Loading posts...</p>
+          <p style={{ textAlign: 'center', color: '#666' }}>Loading posts...</p>
         ) : posts.length === 0 ? (
           <p style={{ textAlign: 'center', color: '#666' }}>No posts yet.</p>
         ) : (
