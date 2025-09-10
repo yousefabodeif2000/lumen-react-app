@@ -22,6 +22,7 @@ A full-stack web application built with **React** (frontend), **Lumen (PHP)** (b
 - [API Documentation (Postman Collections)](#api-documentation-postman-collections)  
 - [Running Tests](#running-tests)  
 - [Docker Setup](#docker-setup)  
+- [Notes](#notes)  
 - [License](#license)  
 
 ---
@@ -168,9 +169,9 @@ All backend APIs are documented and can be explored via **Postman collections**.
 
 | Collection | Description | Download |
 |------------|-------------|----------|
-| **Lumen Backend** | Register/login users and manage posts | [![Download]](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-7fa97919-57c5-4a9d-b0f8-eae12bac4e24?action=share&creator=48181759) |
-| **Node.js Caching Layer** | Same endpoints as Lumen but with Redis caching | [![Download]](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-9ca22187-b765-4127-b2ef-f1362e50236b?action=share&creator=48181759) |
-| **User Panel (Admin / RBAC)** | Assign/remove roles to users | [![Download]](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-d8d110e5-0b5f-4bdc-b17d-76f198ede1bf?action=share&creator=48181759) |
+| **Lumen Backend** | Register/login users and manage posts | [Open in Postman](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-7fa97919-57c5-4a9d-b0f8-eae12bac4e24?action=share&creator=48181759) |
+| **Node.js Caching Layer** | Same endpoints as Lumen but with Redis caching | [Open in Postman](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-9ca22187-b765-4127-b2ef-f1362e50236b?action=share&creator=48181759) |
+| **User Panel (Admin / RBAC)** | Assign/remove roles to users | [Open in Postman](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-d8d110e5-0b5f-4bdc-b17d-76f198ede1bf?action=share&creator=48181759) |
 
 ### Endpoints Included
 
@@ -214,6 +215,13 @@ docker-compose up --build
 - **Frontend**: [http://localhost:5173](http://localhost:5173)  
 - **Lumen backend**: [http://localhost:9000](http://localhost:9000)  
 - **Node backend**: [http://localhost:3000](http://localhost:3000)  
+
+---
+
+## Notes
+
+- Redis caching reduces database queries and improves response time.  
+- RBAC ensures fine-grained access control.  
 
 ---
 
