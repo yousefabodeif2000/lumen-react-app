@@ -5,8 +5,10 @@ use Laravel\Lumen\Routing\Router;
 require_once __DIR__.'/../vendor/autoload.php';
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
-    dirname(__DIR__)
+    dirname(__DIR__),
+    '.env.local' 
 ))->bootstrap();
+
 
 date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 

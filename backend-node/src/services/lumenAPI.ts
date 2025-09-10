@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { PostPayload } from '../interfaces';
 const lumenAPI = axios.create({
-  baseURL: process.env.LUMEN_API_URL || "http://lumen:9000/api",
-  timeout: 5000,
+  baseURL: process.env.LUMEN_API_URL || "http://localhost:9000/api",
+  timeout: 10000,
 });
 
 

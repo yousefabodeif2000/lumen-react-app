@@ -7,16 +7,22 @@ let token: string;
 beforeAll(async () => {
   const randomSuffix = randomInt(1000, 9999);
 
-  await request(app).post('/api/register').send({
+  const regRes = await request(app).post('/api/register').send({
     name: 'Tester' + randomSuffix,
     email: 'test' + randomSuffix + '@test.com',
     password: 'secret',
   });
 
+//expect(regRes.status).toBe(201);
+
   const res = await request(app).post('/api/login').send({
     email: 'test' + randomSuffix + '@test.com',
     password: 'secret',
   });
+
+//expect(res.status).toBe(200);
+//expect(res.body).toHaveProperty('token');
+//expect(res.body).toHaveProperty('user');
 
   token = res.body.token;
 });

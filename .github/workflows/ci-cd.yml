@@ -14,7 +14,7 @@ jobs:
       DB_CONNECTION: sqlite
       DB_DATABASE: ":memory:"
       REDIS_CLIENT: array
-      LUMEN_API_URL: http://127.0.0.1:8000
+      LUMEN_API_URL: http://127.0.0.1:9000
       COMPOSER_PROCESS_TIMEOUT: 0
       COMPOSER_NO_INTERACTION: 1
       COMPOSER_NO_AUDIT: 1
@@ -33,17 +33,13 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
         working-directory: ./backend-lumen
-        
-      - name: Use CI environment
-        run: cp .env.ci .env
-        working-directory: ./backend-lumen
 
       - name: Run migrations
         run: php artisan migrate --force
         working-directory: ./backend-lumen
 
 
-      - name: Run seeders (optional if needed for tests)
+      - name: Run seeders
         run: php artisan db:seed --force
         working-directory: ./backend-lumen
 
@@ -53,12 +49,12 @@ jobs:
 
       - name: Start Lumen server
         working-directory: ./backend-lumen
-        run: php -S 127.0.0.1:8000 -t public &
+        run: php -S 127.0.0.1:9000 -t public &
 
       - name: Wait for Lumen to be ready
         run: |
           for i in {1..20}; do
-            if curl -s http://127.0.0.1:8000/api/health >/dev/null; then
+            if curl -s http://127.0.0.1:9000/api/health >/dev/null; then
               echo "Lumen is up!"
               exit 0
             fi
