@@ -1,8 +1,6 @@
 
 # Lumen-React Project with Node.js Caching Layer and RBAC
 
-![Build](https://img.shields.io/github/actions/workflow/status/yousefabodeif2000/lumen-react-app/branch=main)  
-![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)  
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 A full-stack web application built with **React** (frontend), **Lumen (PHP)** (backend), and **Node.js** as a caching/API layer. It features user authentication, post management, Redis caching, **RBAC (roles & permissions)**, REST API, and unit testing.
