@@ -80,18 +80,29 @@ composer install
 
 3. Configure `.env` file:
 ```
+APP_NAME=backend-lumen
+APP_ENV=local
+APP_URL=http://localhost
+APP_TIMEZONE=UTC
+
+LOG_CHANNEL=stack
+
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
+DB_HOST= mysql_db        
 DB_PORT=3306
-DB_DATABASE=your_db
+DB_DATABASE=lumen_db
 DB_USERNAME=your_user
 DB_PASSWORD=your_pass
 
-CACHE_DRIVER=redis
-REDIS_HOST=127.0.0.1
-REDIS_PORT=6379
+CACHE_DRIVER=file
+QUEUE_CONNECTION=sync
 
-JWT_SECRET=your_secret_key
+JWT_SECRET=your_secret
+
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_CLIENT=predis
+
 ```
 
 4. Run migrations & seeders:
@@ -119,7 +130,13 @@ npm install
 ```
 
 3. Configure `.env` with API and Redis credentials.
+```
+PORT=3000
 
+LUMEN_API_URL=http://lumen:9000/api  
+REDIS_HOST=redis
+REDIS_PORT=6379
+```
 4. Start the Node.js server:
 ```bash
 npm run dev
@@ -177,10 +194,10 @@ All backend APIs are documented and can be explored via **Postman collections**.
 **Lumen Backend & Node.js Caching Layer**:
 - `POST /api/register` – Register a new user  
 - `POST /api/login` – Login and receive JWT  
-- `POST /posts` – Create a new post  
-- `GET /posts` – Retrieve all posts  
-- `GET /posts/{id}` – Retrieve a specific post  
-- `DELETE /posts/{id}` – Delete a post (requires appropriate permission)  
+- `POST api/posts` – Create a new post  
+- `GET cache/posts` – Retrieve all posts  
+- `GET cache/posts/{id}` – Retrieve a specific post  
+- `DELETE api/posts/{id}` – Delete a post (requires appropriate permission)  
 
 **User Panel (Admin / RBAC)**:
 - `POST /admin/users/{userId}/assign-role` – Assign a role to a user  
@@ -214,13 +231,6 @@ docker-compose up --build
 - **Frontend**: [http://localhost:5173](http://localhost:5173)  
 - **Lumen backend**: [http://localhost:9000](http://localhost:9000)  
 - **Node backend**: [http://localhost:3000](http://localhost:3000)  
-
----
-
-## Notes
-
-- Redis caching reduces database queries and improves response time.  
-- RBAC ensures fine-grained access control.  
 
 ---
 
