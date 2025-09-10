@@ -167,7 +167,7 @@ All backend APIs are documented and can be explored via **Postman collections**.
 
 ### Download & Import Collections
 
-| Collection | Description | Download |
+| Collection | Description | API |
 |------------|-------------|----------|
 | **Lumen Backend** | Register/login users and manage posts | [Open in Postman](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-7fa97919-57c5-4a9d-b0f8-eae12bac4e24?action=share&creator=48181759) |
 | **Node.js Caching Layer** | Same endpoints as Lumen but with Redis caching | [Open in Postman](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-9ca22187-b765-4127-b2ef-f1362e50236b?action=share&creator=48181759) |
