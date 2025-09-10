@@ -115,6 +115,7 @@ $app->register(\Illuminate\Redis\RedisServiceProvider::class);
 
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
+    'permission' => App\Http\Middleware\CheckPermission::class,
 ]);
 
 $app->router->group([

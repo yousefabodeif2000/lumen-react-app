@@ -47,4 +47,32 @@ class PostController extends Controller
         
         return response()->json($post, 201);
     }
+    public function destroy($id)
+    {
+        // Authenticate user
+        $user = JWTAuth::parseToken()->authenticate();
+
+        // Find the post
+        $post = Post::findOrFail($id);
+
+        // Check if user has permission
+        if (!$user->hasPermission('delete_post')) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        // Optional: allow only the author or admin to delete
+        if ($post->user_id !== $user->id && !$user->hasPermission('admin_delete_post')) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        // Delete the post
+        $post->delete();
+
+        // Clear relevant caches
+        Redis::del('posts_cache');       // invalidate list cache
+        Redis::del("post_{$id}");       // invalidate single post cache
+
+        return response()->json(['message' => 'Post deleted successfully']);
+    }
+
 }

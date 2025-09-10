@@ -15,6 +15,25 @@ class User extends Model implements AuthenticatableContract, JWTSubject
 
     protected $hidden = ['password'];
 
+    public function roles()
+    {
+        // explicitly set pivot table name 'user_role'
+        return $this->belongsToMany(Role::class, 'user_role');
+    }
+
+    public function hasPermission($permissionName)
+    {
+        // eager load permissions for all roles
+        $this->loadMissing('roles.permissions');
+
+        foreach ($this->roles as $role) {
+            if ($role->permissions->contains('name', $permissionName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function posts()
     {
         return $this->hasMany(Post::class);
