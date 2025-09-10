@@ -37,6 +37,10 @@ jobs:
       - name: Run PHPUnit tests
         run: php ./vendor/bin/phpunit --configuration phpunit.xml 
         working-directory: ./backend-lumen
+        
+      - name: Start Lumen server
+        working-directory: ./backend-lumen
+        run: php -S 127.0.0.1:9000 -t public &
 
 
       # --- Node.js setup ---
