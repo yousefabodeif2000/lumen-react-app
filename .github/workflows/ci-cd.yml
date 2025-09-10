@@ -35,8 +35,9 @@ jobs:
         working-directory: ./backend-lumen
 
       - name: Run PHPUnit tests
-        run: ./vendor/bin/phpunit --testdox
+        run: php ./vendor/bin/phpunit --configuration phpunit.xml 
         working-directory: ./backend-lumen
+
 
       # --- Node.js setup ---
       - name: Set up Node.js
