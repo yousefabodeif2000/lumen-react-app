@@ -1,10 +1,11 @@
+
 # Lumen-React Project with Node.js Caching Layer and RBAC
 
 ![Build](https://img.shields.io/github/actions/workflow/status/yousefabodeif2000/lumen-react-app/branch=main)  
 ![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)  
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-A full-stack web application built with **React** (frontend), **Lumen (PHP)** (backend), and **Node.js** as a caching/API layer. It features user authentication, post management, Redis caching, **RBAC (roles & permissions)**, **GraphQL API**, **WebSockets for live updates**, and unit testing.
+A full-stack web application built with **React** (frontend), **Lumen (PHP)** (backend), and **Node.js** as a caching/API layer. It features user authentication, post management, Redis caching, **RBAC (roles & permissions)**, REST API, and unit testing.
 
 ---
 
@@ -18,8 +19,7 @@ A full-stack web application built with **React** (frontend), **Lumen (PHP)** (b
   - [Setup Node.js Caching Layer](#setup-nodejs-caching-layer)  
   - [Setup React Frontend](#setup-react-frontend)  
 - [RBAC Management](#rbac-management)  
-- [GraphQL API](#graphql-api)  
-- [WebSockets](#websockets)  
+- [API Documentation (Postman Collections)](#api-documentation-postman-collections)  
 - [Running Tests](#running-tests)  
 - [Docker Setup](#docker-setup)  
 - [Notes](#notes)  
@@ -31,11 +31,9 @@ A full-stack web application built with **React** (frontend), **Lumen (PHP)** (b
 
 - **User Authentication**: Login and registration with JWT tokens.  
 - **Role-Based Access Control (RBAC)**: Users can have roles (admin, editor, user) with specific permissions. Middleware enforces access for protected routes.  
-- **Post Management**: Create, view, update, and delete posts based on permissions.  
+- **Post Management**: Create, view, and delete posts based on permissions.  
 - **Optimistic UI Updates**: Newly created posts appear instantly without waiting for server response.  
 - **Caching**: Posts are cached in **Redis** via Node.js for faster retrieval. Cache expires after 60 seconds.  
-- **GraphQL API**: Query posts and users efficiently via GraphQL endpoints.  
-- **WebSockets (Socket.io)**: Real-time updates for newly created posts.  
 - **Unit Testing**: Backend tested with PHPUnit and Node.js tests.  
 - **Docker Support**: Containerized setup for easy deployment.
 
@@ -47,10 +45,9 @@ A full-stack web application built with **React** (frontend), **Lumen (PHP)** (b
 |-----------|--------------------------------|
 | Frontend  | React, TypeScript, Axios       |
 | Backend   | Lumen (PHP), Node.js           |
-| Database  | PostgreSQL / MySQL             |
+| Database  | MySQL                           |
 | Cache     | Redis                          |
-| Real-time | WebSockets (Socket.io)         |
-| API       | GraphQL                        |
+| API       | REST                           |
 | Testing   | PHPUnit, Jest                  |
 | Deployment| Docker, Docker Compose         |
 
@@ -65,7 +62,7 @@ A full-stack web application built with **React** (frontend), **Lumen (PHP)** (b
 - Composer  
 - Docker & Docker Compose (optional)  
 - Redis server  
-- PostgreSQL or MySQL  
+- MySQL  
 
 ---
 
@@ -105,7 +102,7 @@ php artisan migrate --seed
 
 5. Start the backend server:
 ```bash
-php -S localhost:8000 -t public
+php -S localhost:9000 -t public
 ```
 
 ---
@@ -148,7 +145,7 @@ npm install
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+4. Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
@@ -160,35 +157,35 @@ npm run dev
 - **Assign permission to role:** `POST /admin/roles/{roleId}/assign-permission`  
 - **Remove permission from role:** `POST /admin/roles/{roleId}/remove-permission`  
 
-> Permissions control access to creating, editing, deleting posts, and accessing admin endpoints.
+> Permissions control access to creating and deleting posts, and accessing admin endpoints.
 
 ---
 
-## GraphQL API
+## API Documentation (Postman Collections)
 
-- Lumen backend exposes a GraphQL endpoint: `/graphql`  
-- Example queries:
-```graphql
-query {
-  posts {
-    id
-    title
-    content
-    user {
-      name
-    }
-  }
-}
-```
-- Supports filtering, pagination, and relational queries.
+All backend APIs are documented and can be explored via **Postman collections**. These collections include request examples, headers, authentication, and response samples for both **Lumen** and **Node.js caching layer**.
 
----
+### Download & Import Collections
 
-## WebSockets
+| Collection | Description | Download |
+|------------|-------------|----------|
+| **Lumen Backend** | Register/login users and manage posts | [![Download](https://img.shields.io/badge/download-Postman-green)](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-7fa97919-57c5-4a9d-b0f8-eae12bac4e24?action=share&creator=48181759) |
+| **Node.js Caching Layer** | Same endpoints as Lumen but with Redis caching | [![Download](https://img.shields.io/badge/download-Postman-blue)](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-9ca22187-b765-4127-b2ef-f1362e50236b?action=share&creator=48181759) |
+| **User Panel (Admin / RBAC)** | Assign/remove roles to users | [![Download](https://img.shields.io/badge/download-Postman-orange)](https://yousefabodeif2000-2994832.postman.co/workspace/Youssef-Abo-Deif's-Workspace~ad93db39-18a2-4b0f-8e00-644148ba7f3a/collection/48181759-d8d110e5-0b5f-4bdc-b17d-76f198ede1bf?action=share&creator=48181759) |
 
-- Node.js layer provides **Socket.io** for live updates.  
-- When a new post is created, all connected clients receive a real-time event.  
-- Frontend subscribes to `post_created` events to update the UI instantly.
+### Endpoints Included
+
+**Lumen Backend & Node.js Caching Layer**:
+- `POST /api/register` – Register a new user  
+- `POST /api/login` – Login and receive JWT  
+- `POST /posts` – Create a new post  
+- `GET /posts` – Retrieve all posts  
+- `GET /posts/{id}` – Retrieve a specific post  
+- `DELETE /posts/{id}` – Delete a post (requires appropriate permission)  
+
+**User Panel (Admin / RBAC)**:
+- `POST /admin/users/{userId}/assign-role` – Assign a role to a user  
+- `POST /admin/users/{userId}/remove-role` – Remove a role from a user  
 
 ---
 
@@ -225,8 +222,6 @@ docker-compose up --build
 
 - Redis caching reduces database queries and improves response time.  
 - RBAC ensures fine-grained access control.  
-- WebSockets provide live updates for post creation.  
-- GraphQL allows flexible data querying from frontend.  
 
 ---
 
